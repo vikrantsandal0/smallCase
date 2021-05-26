@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "update trades",
+    "type": "object",
+    "properties": {
+        "quantity": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "security_uuid": {
+            "type": "string",
+            "format": "uuid"
+        },
+        "trade_type": {
+            "enum": [
+                "BUY",
+                "SELL"
+            ]
+        },
+        "trade_id": {
+            "type": "integer",
+            "minimum": 1
+        }
+    },
+    "required": [
+        "quantity",
+        "security_uuid",
+        "trade_type",
+        "trade_id"
+    ],
+    "additionalProperties": false
+}

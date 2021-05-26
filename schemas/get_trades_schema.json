@@ -1,0 +1,15 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "get trades",
+    "type": "object",
+    "properties": {
+        "security_uuid": {
+            "type": "string",
+            "format": "uuid"
+        }
+    },
+    "required": [
+        "security_uuid"
+    ],
+    "additionalProperties": false
+}

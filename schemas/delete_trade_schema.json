@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "delete trades",
+    "type": "object",
+    "properties": {
+        "security_uuid": {
+            "type": "string",
+            "format": "uuid"
+        },
+        "trade_id": {
+            "type": "integer",
+            "minimum": 1
+        }
+    },
+    "required": [
+        "security_uuid",
+        "trade_id"
+    ],
+    "additionalProperties": false
+}
