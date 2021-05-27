@@ -1,4 +1,4 @@
-const { getTrades, makeTrades, updateTrades, deleteTrades, tradesReturns,portfolioDetails } = require('../implementation/trades.impl');
+const { getTrades, makeTrades, updateTrades, deleteTrades, tradesReturns, portfolioDetails } = require('../implementation/trades.impl');
 
 exports.get_trades = getTrades;
 exports.make_trades = makeTrades;

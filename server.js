@@ -8,7 +8,6 @@ const logger = require("./utils/logger");
 const consts = require("./static/constants");
 const errorConsts = require("./static/error_constants");
 const logMsgs = require("./static/log_messages");
-const respMsgs = require("./static/resp_messages");
 const dbUtils = require("./utils/db");
 const { dbConnectionMiddleware } = require('./middleware/dbConnectionMiddleware');
 
@@ -38,7 +37,7 @@ try {
 		if (error instanceof SyntaxError) {
 			return res.status(consts.badReqHTTPCode).json({
 				error_code: errorConsts.errorCodes.invalidValue,
-				message: `${respMsgs.srvr_invalid_json}: ${error.message}`
+				message: `${consts.RESPONSE_MESSAGES.INVALID_JSON}: ${error.message}`
 			});
 		} else {
 			next();

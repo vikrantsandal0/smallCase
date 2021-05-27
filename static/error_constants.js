@@ -1,9 +1,3 @@
-const consts = require("./constants");
-
-exports.fkError = "SequelizeForeignKeyConstraintError";
-exports.conError = "SequelizeConnectionError";
-exports.uqConstraintError = "SequelizeUniqueConstraintError";
-exports.dbErrors = ["SequelizeDatabaseError", "SequelizeForeignKeyConstraintError", "SequelizeConnectionError"];
 exports.invalidValue = "invalidValue";
 
 exports.errorCodes = {
@@ -18,10 +12,7 @@ exports.errorCodes = {
 	"notFound": 1009,
 	"noChange": 1010,
 	"notAllowed": 1011,
-	"invalidAllowedValues": 1012,
-	"expired": 1013,
-	"dbError": 2001,
-	"thirdPartyError": 3001
+	"invalidAllowedValues": 1012
 };
 
 //error constants for AJV req body validation

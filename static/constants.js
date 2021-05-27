@@ -44,7 +44,8 @@ exports.RESPONSE_MESSAGES = {
 	NOT_ENOUGH_STOCKS : "Not enough stocks",
 	NO_TRADE_PRESENT: "No such trade present in database",
 	NO_SECURITY_PRESENT: "No such security present in database",
-	NO_DATA_FOUND : "No data found"
+	NO_DATA_FOUND : "No data found",
+	INVALID_JSON : "Invalid JSON in request body",
 };
 
 exports.successMHTTPCode = 200;
