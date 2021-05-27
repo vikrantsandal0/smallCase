@@ -19,7 +19,6 @@ try {
 	// Do NOT access the global DB connection object directly;
 	// ALWAYS use dbUtils methods.
 	dbUtils.createDBConnections().then(() => {
-		console.log('here--------');
 		logger.info(logMsgs.db_createAllConnections);
 	}).catch((err) => {
 		logger.error(JSON.stringify(err));

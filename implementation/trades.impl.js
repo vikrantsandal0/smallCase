@@ -13,7 +13,7 @@ const { createTrade, fetchTrade, updateTrade } = require('../common/queries/trad
 const { Console } = require("winston/lib/winston/transports");
 
 const formatInsertObj = (new_average_price, new_quantity, old_average, old_quantity, trade_type, trade_quantity, security_uuid) => {
-	let x = {
+	return {
 		trade_price: consts.CURRENT_STOCK_PRICE,
 		trade_type,
 		trade_quantity,
@@ -23,8 +23,6 @@ const formatInsertObj = (new_average_price, new_quantity, old_average, old_quant
 		old_average,
 		...(security_uuid ? { security_uuid } : {}),
 	}
-	console.log('final object to insert=======', x);
-	return x;
 }
 const findNewAvgPrice = (secObj) => {
 
@@ -50,7 +48,6 @@ const findNewAvgPrice = (secObj) => {
 		}
 	}
 	newAvgPrice = helper.roundToTwo(newAvgPrice);
-	console.log('newAvgPrice======quantity========', newAvgPrice, newQuantity);
 	return { newAvgPrice, newQuantity }
 
 }
@@ -81,7 +78,6 @@ const tradeRemovalCalc = (secObj) => {
 		}
 	}
 	newAvgPrice = helper.roundToTwo(newAvgPrice);
-	console.log('newAvgPrice======quantity========', newAvgPrice, settleAmount, settleSharesNum);
 	return { settleAmount, settleSharesNum, newAvgPrice }
 
 }
@@ -92,7 +88,6 @@ exports.getTrades = async (req, res) => {
 	try {
 		const { query, dbObj } = req;
 		const { dbConnection: db } = dbObj;
-		console.log('body-------', query);
 		//validate the req body using the json schemas & other validations
 		logger.info(logMsgs.gT_valReqBody);
 		/* Validate the Request body */
@@ -118,21 +113,31 @@ exports.getTrades = async (req, res) => {
 				model: models.tradesModel,
 				attributes: consts.tradeAttrs,
 				where: { [consts.FIELD.IS_DELETED]: consts.BOOLEAN.FALSE }
-			}]
+			}],
+
+			order = [[Sequelize.literal(`${consts.tradesAlias}.${consts.FIELD.MODIFIED_ON}`), consts.dscOrder]];
 
 
-		let security = await fetchPortFolio(models, [consts.FIELD.UUID, consts.FIELD.CURR_QUANTITY, consts.FIELD.AVG_PRICE],
-			secWhereCondition, includesData);
-		console.log('security----', security);
+		let security = await fetchPortFolio(models, [consts.FIELD.UUID, consts.FIELD.CURR_QUANTITY, consts.FIELD.AVG_PRICE, consts.FIELD.TICKER_SYMBOL],
+			secWhereCondition, includesData, order);
 		if (_.isEmpty(security)) {
 			throw { message: consts.RESPONSE_MESSAGES.NO_DATA_FOUND, statusCode: consts.notFoundHTTPCode }
+		}
+		let finalResult = []
+		for (let trade of security) {
+			let { trades, ticker_symbol, uuid } = trade
+			finalResult.push({
+				...trades,
+				ticker_symbol,
+				uuid
+			})
 		}
 		// If no errors thrown, return status 200, with listOfItems and success msg
 		return res.status(consts.successMHTTPCode).json({
 			status: consts.successMHTTPCode,
 			responseTimeStamp: + new Date(),
 			message: consts.successMsg,
-			result: security
+			result: finalResult
 		});
 
 	}
@@ -150,7 +155,6 @@ exports.makeTrades = async (req, res) => {
 	try {
 		const { body, dbObj } = req;
 		const { dbConnection: db } = dbObj;
-		console.log('body-------', body);
 		//validate the req body using the json schemas & other validations
 		logger.info(logMsgs.mT_valReqBody);
 		/* Validate the Request body */
@@ -174,13 +178,10 @@ exports.makeTrades = async (req, res) => {
 		};
 
 		let security = await fetchPortFolio(models, [consts.FIELD.UUID, consts.FIELD.CURR_QUANTITY, consts.FIELD.AVG_PRICE], secWhereCondition, []);
-		console.log('security----', security);
 		if (_.isEmpty(security)) {
 			throw { message: consts.RESPONSE_MESSAGES.NO_SECURITY_PRESENT, statusCode: consts.notFoundHTTPCode }
 		}
 		let { average_price: securityAvgPrice, current_quantity: securityCurrentQuantity } = security[0];
-
-		console.log('AFTER EXTRACTION', securityAvgPrice, securityCurrentQuantity);
 
 		let { newAvgPrice, newQuantity } = findNewAvgPrice({ securityAvgPrice, securityCurrentQuantity, quantity, tradeType })
 		let tradeCreated = null;
@@ -253,8 +254,6 @@ exports.updateTrades = async (req, res) => {
 
 		let security = await fetchPortFolio(models, [consts.FIELD.UUID, consts.FIELD.OLD_QUANTITY, consts.FIELD.OLD_AVG],
 			secWhereCondition, []);
-		console.log('security----', security);
-
 		if (_.isEmpty(security)) {
 			throw { message: consts.RESPONSE_MESSAGES.NO_SECURITY_PRESENT, statusCode: consts.notFoundHTTPCode }
 		}
@@ -265,7 +264,6 @@ exports.updateTrades = async (req, res) => {
 		};
 
 		let trade = await fetchTrade(models, consts.tradeAttrs, findTradeCondition, []);
-		console.log('trade----', trade);
 		if (_.isEmpty(trade)) {
 			throw { message: consts.RESPONSE_MESSAGES.NO_TRADE_PRESENT, statusCode: consts.notFoundHTTPCode }
 		}
@@ -273,7 +271,7 @@ exports.updateTrades = async (req, res) => {
 		let { old_average: securityAvgPrice, old_quantity: securityCurrentQuantity } = security[0];
 
 		let { newAvgPrice, newQuantity } = findNewAvgPrice({ securityAvgPrice, securityCurrentQuantity, quantity, tradeType })
-		console.log('newAvgPrice----', newAvgPrice, '===========newQuantity', newQuantity);
+
 		await db.transaction(async () => {
 
 			logger.info(logMsgs.uT_startTransaction);
@@ -338,7 +336,6 @@ exports.deleteTrades = async (req, res) => {
 		};
 
 		let security = await fetchPortFolio(models, [consts.FIELD.UUID, consts.FIELD.CURR_QUANTITY, consts.FIELD.AVG_PRICE], secWhereCondition, []);
-		console.log('security----', security);
 		if (_.isEmpty(security)) {
 			throw { message: consts.RESPONSE_MESSAGES.NO_SECURITY_PRESENT, statusCode: consts.notFoundHTTPCode }
 		}
@@ -349,7 +346,7 @@ exports.deleteTrades = async (req, res) => {
 		};
 
 		let trade = await fetchTrade(models, consts.tradeAttrs, findTradeCondition, []);
-		console.log('trade----', trade);
+
 		if (_.isEmpty(trade)) {
 			throw { message: consts.RESPONSE_MESSAGES.NO_TRADE_PRESENT, statusCode: consts.notFoundHTTPCode }
 		}
@@ -451,7 +448,6 @@ exports.portfolioDetails = async (req, res) => {
 		};
 
 		let security = await fetchPortFolio(models, null, secWhereCondition, []);
-		console.log('FINAL PORTFOLIO--', security);
 		logger.info(logMsgs.pD_end);
 		// If no errors thrown, return status 200, with listOfItems and success msg
 		return res.status(consts.successMHTTPCode).json({

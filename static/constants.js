@@ -24,6 +24,8 @@ exports.FIELD = {
 	TRADE_TYPE: "trade_type",
 	OLD_AVG: "old_average",
 	OLD_QUANTITY: "old_quantity",
+	TICKER_SYMBOL : "ticker_symbol",
+	MODIFIED_ON : "modified_on"
 };
 
 exports.BOOLEAN = {
@@ -48,6 +50,9 @@ exports.RESPONSE_MESSAGES = {
 	INVALID_JSON : "Invalid JSON in request body",
 };
 
+exports.ascOrder = "ASC";
+exports.dscOrder = "DESC";
+exports.tradesAlias = "trades";
 exports.successMHTTPCode = 200;
 exports.badReqHTTPCode = 400;
 exports.preconditionFailedHTTPCode = 412;

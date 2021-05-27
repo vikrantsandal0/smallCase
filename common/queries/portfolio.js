@@ -1,6 +1,6 @@
-exports.fetchPortFolio = (models, attributes, where, include, raw = true, nest = true) => {
+exports.fetchPortFolio = (models, attributes, where, include, order, raw = true, nest = true) => {
 	const { portfolioModel } = models;
-	const finalCond = { attributes, where, include, raw, nest };
+	const finalCond = { attributes, where, include, order, raw, nest };
 	return portfolioModel.findAll(finalCond);
 };
 

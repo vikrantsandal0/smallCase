@@ -22,8 +22,8 @@ exports.createDBConnections = async () => {
 	let connObj = {}, dbName = process.env.DB_NAME;
 	try {
 		connObj[dbName] = await new Sequelize(
-			'smallcase',
-			'vikrantsandal',
+			process.env.DB_NAME,
+			process.env.DB_USER,
 			null,
 			{
 				host: process.env.DB_HOST,
